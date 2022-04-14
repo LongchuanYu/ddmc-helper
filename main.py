@@ -17,18 +17,21 @@ class Resolve():
         address_id = self.api.get_address_id()
         while True:
             cart_info = self.api.get_cart()
-            products = cart_info['products']
-            effective_product_names = cart_info['effective_product_names']
-            res = self.api.check_reserve_time(address_id, json.dumps(products))
-            if len(effective_product_names):
-                msg = '购物车有效商品{}件: {}\n 运力: {}'.format(
-                    len(effective_product_names), 
-                    ','.join(effective_product_names),
-                    '有' if res else '无'
-                )
-                if self.msg != msg:
-                    send_msg_bark(msg)
-                    self.msg = msg
+            if cart_info:
+                products = cart_info['products']
+                effective_product_names = cart_info['effective_product_names']
+                res = self.api.check_reserve_time(address_id, json.dumps(products))
+                if len(effective_product_names):
+                    msg = '购物车有效商品{}件, 运力: {} \n {}'.format(
+                        len(effective_product_names), 
+                        '有' if res else '无',
+                        ','.join(effective_product_names)
+                        
+                    )
+                    print(msg)
+                    if self.msg != msg:
+                        send_msg_bark(msg)
+                        self.msg = msg
             time.sleep(config.duration)
 
 

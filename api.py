@@ -45,7 +45,7 @@ class Api:
 
 
     def get_cart(self):
-        """ 获取购物车信息 需要cookie
+        """ 获取购物车可购买的商品信息 需要cookie
 
         @return: {} or {'products': [], 'total_money': '', ...}
         """
