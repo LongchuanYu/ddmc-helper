@@ -53,7 +53,7 @@ def get_headers():
     }
     return headers
 
-def get_body(build_from_raw_body=False):
+def get_body(is_build_from_raw_body=False):
     body = {
         "uid": uid,
         "longitude": longitude,
@@ -71,8 +71,8 @@ def get_body(build_from_raw_body=False):
         "device_token": ''
     }
 
-    if build_from_raw_body:
-        raw_body_dict = build_from_raw_body(raw_body)
+    if is_build_from_raw_body:
+        raw_body_dict = build_from_raw_body('')
         for key in raw_body_dict:
             if key in body:
                 body[key] = raw_body_dict[key]
