@@ -54,6 +54,7 @@ class Api:
         url = 'https://maicai.api.ddxq.mobi/cart/index'
         params = config.get_body()
         params['is_load'] = '1'
+
         r = requests.get(url, headers=headers, params=params)
         if r.status_code != 200:
             print('请求失败!')
@@ -68,19 +69,13 @@ class Api:
             return {}
         products_info = res['data']['new_order_product_list'][0]
         products_info['parent_order_sign'] = res['data']['parent_order_info']['parent_order_sign']
-        return products_info
-
-    def get_effective_products(self):
-        """ 获取有效的产品信息
-
-        @return: [] or ['叮咚买菜大桶饮用水  5L/桶', ...]
-        """
-        products_info = self.get_cart()
         products = products_info['products']
-        effective_products = []
+        effective_product_names = []
         for product in products:
-            effective_products.append(product['product_name'])
-        return effective_products
+            effective_product_names.append(product['product_name'])
+        products_info['effective_product_names'] = effective_product_names
+
+        return products_info
 
     def check_reserve_time(self, address_id, products_raw):
         """ 检查是否有运力 需要cookie
