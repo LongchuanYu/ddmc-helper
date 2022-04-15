@@ -1,0 +1,25 @@
+html {
+    font-size: 18px;
+}
+
+body {
+    padding: 30px 60px;
+    font-size: 18px;
+    height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+@media only screen and (max-device-width: 720px) {
+    body {
+        padding: 30px 60px;
+        font-size: 1.5rem;
+        height: 100vh;
+        box-sizing: border-box;
+        margin: 0;
+    }
+
+    button {
+        font-size: 1.5rem;
+    }
+}

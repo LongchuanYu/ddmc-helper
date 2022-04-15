@@ -1,50 +1,31 @@
-import requests
-import json
-import time
-import sys
-import config
-from check_stock import check_stock, send_msg_bark
-from api import Api
+from flask import Flask, request, render_template, redirect, url_for, jsonify
+# from proxy import Proxy
 
+app = Flask(__name__)
 
-class Resolve():
-    def __init__(self) -> None:
-        self.api = Api()
-        self.msg = ''
+# proxy = Proxy()
 
-    def check_cart_and_reserve_time(self):
-        print('开始检查购物车和运力...')
-        address_id = self.api.get_address_id()
-        while True:
-            cart_info = self.api.get_cart()
-            if cart_info:
-                products = cart_info['products']
-                effective_product_names = cart_info['effective_product_names']
-                res = self.api.check_reserve_time(address_id, json.dumps(products))
-                if len(effective_product_names):
-                    msg = '购物车有效商品{}件, 运力: {} \n {}'.format(
-                        len(effective_product_names), 
-                        '有' if res else '无',
-                        ','.join(effective_product_names)
-                        
-                    )
-                    print(msg)
-                    if self.msg != msg:
-                        send_msg_bark(msg)
-                        self.msg = msg
-            time.sleep(config.duration)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
+@app.route('/check_cart_and_reserve_time', methods=['POST'])
+def check_cart_and_reserve_time():
+    # proxy.run('check_cart_and_reserve_time_thread')
+    print('check_cart_and_reserve_time')
+    return {'status': 'ok'}
+
+@app.route('/stop_thread', methods=['POST', 'GET'])
+def stop_thread():
+    # data = request.get_json()
+    print('stopped')
+    # proxy.stop(data['thread_name'])
+    return jsonify('okk')
+
+@app.route('/stop_all', methods=['POST'])
+def stop_all():
+    # proxy.stop_all()
+    return {'status': 'ok'}
 
 if __name__ == '__main__':
-    # 给在服务器后台执行使用
-    if len(sys.argv) > 1:
-        run_type = int(sys.argv[1])
-        if run_type in [1, 2, 3]:
-            config.run_type = run_type
-    resolve = Resolve()
-    if config.run_type == 1:
-        resolve.check_cart_and_reserve_time()
-        
-    else:
-        check_stock()
-
+    app.run(debug=True)
