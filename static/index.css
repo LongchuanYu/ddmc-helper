@@ -1,25 +1,26 @@
 html {
-    font-size: 18px;
+    font-family: sans-serif; /* 默认字体 */
+    font-size: 100%; /* 调整字体大小 */
+    -ms-text-size-adjust: 100%; /* IE浏览器 */
+   -webkit-text-size-adjust: 100%; /* FireFox浏览器 */
 }
-
 body {
     padding: 30px 60px;
-    font-size: 18px;
-    height: 100vh;
     box-sizing: border-box;
     margin: 0;
 }
 
-@media only screen and (max-device-width: 720px) {
-    body {
-        padding: 30px 60px;
-        font-size: 1.5rem;
-        height: 100vh;
-        box-sizing: border-box;
-        margin: 0;
-    }
-
-    button {
-        font-size: 1.5rem;
-    }
+button {
+    font-size: 1rem;
 }
+
+@media screen and (min-width:321px) and (max-width:375px){html{font-size:11px}}
+@media screen and (min-width:376px) and (max-width:414px){html{font-size:12px}}
+@media screen and (min-width:415px) and (max-width:639px){html{font-size:15px}}
+@media screen and (min-width:640px) and (max-width:719px){html{font-size:20px}}
+@media screen and (min-width:720px) and (max-width:749px){html{font-size:22.5px}}
+@media screen and (min-width:750px) and (max-width:799px){html{font-size:23.5px}}
+@media screen and (min-width:800px){html{font-size:25px}}
+
+
+
