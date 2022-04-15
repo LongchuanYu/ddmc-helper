@@ -44,8 +44,8 @@ class Proxy():
         try:
             address_id = self.api.get_address_id()
             while fun_name in self.thread_map:
-                # cart_info = self.api.get_cart()
-                cart_info = None
+                cart_info = self.api.get_cart()
+                # cart_info = None
                 if cart_info:
                     products = cart_info['products']
                     effective_product_names = cart_info['effective_product_names']
