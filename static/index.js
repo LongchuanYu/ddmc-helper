@@ -1,10 +1,13 @@
+var baseUrl = 'http://ddmc.remly.xyz:5000/';
+// var baseUrl = 'http://192.168.31.98:5000/';
 var $axios = axios.create({
-    baseURL: 'http://ddmc.remly.xyz:5000/',
+    baseURL: baseUrl
 })
 var $socket = io();
-$socket.on('connect', function(data) {
-    console.log('socket connected!')
-});
+try {
+    var $vConsole = new VConsole();
+} catch {}
+
 var app = new Vue({
     el: '#app',
     delimiters: ['[{', '}]'],
@@ -13,15 +16,20 @@ var app = new Vue({
             checkCart: 'stopped',
             executeFoods: 'stopped'
         },
+        checkCartDuration: '',
         isQuering: false,
-        historyMsg: []
+        historyMsg: [],
+        socketConnected: false,
     },
     methods: {
         checkCart: function() {
             if (this.isQuering) {
                 return;
             }
-            let payload = {thread_name: 'check_cart_and_reserve_time_thread'};
+            let payload = {
+                thread_name: 'check_cart_and_reserve_time_thread',
+                duration: this.checkCartDuration || undefined
+            };
             this.isQuering = true;
             if (this.buttonStatus.checkCart === 'stopped') {
                 $axios.post('check_cart_and_reserve_time', payload).then(res => {
@@ -34,6 +42,8 @@ var app = new Vue({
                     this.buttonStatus.checkCart = 'stopped';
                 })
             }
+
+            this.setDurationToLocalStorage();
         },
         executeFoods: function() {
         },
@@ -56,12 +66,33 @@ var app = new Vue({
                     }
                 });
             })
-        }
+        },
+        setDurationToLocalStorage: function() {
+            window.localStorage.setItem('duration', this.checkCartDuration);
+        },
+        getDurationFromLocalStorage: function() {
+            let duration = window.localStorage.getItem('duration');
+            if (duration) {
+                this.checkCartDuration = duration;
+            }
+        },
+        getHistoryMsg: function() {
+            $axios.get('get_history_msg').then(res => {
+                this.historyMsg = res.data;
+            })
+        },
     },
     created: function() {
-        this.getThreadStatus();
+        $socket.on('connect', (data) => {
+            console.log('socket connected!')
+            this.socketConnected = true;
+        });
+
     },
     mounted: function() {
-        this.listenSocket()
+        this.getHistoryMsg();
+        this.getThreadStatus();
+        this.listenSocket();
+        this.getDurationFromLocalStorage();
     }
 })

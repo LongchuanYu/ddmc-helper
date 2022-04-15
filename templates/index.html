@@ -1,24 +1,37 @@
 <!doctype html>
 <title>DDMC-HELPER</title>
+<meta http-equiv="cache-control" content="no-cache">
 <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-<script crossorigin="anonymous" integrity="sha512-pSyYzOKCLD2xoGM1GwkeHbdXgMRVsSqQaaUoHskx/HF09POwvow2VfVEdARIYwdeFLbu+2FCOTRYuiyeGxXkEg==" src="https://lib.baomitu.com/vue/2.6.14/vue.js"></script>
-<script crossorigin="anonymous" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" src="https://lib.baomitu.com/axios/0.26.1/axios.min.js"></script>
-<script crossorigin="anonymous" integrity="sha512-iqRVtNB+t9O+epcgUTIPF+nklypcR23H1yR1NFM9kffn6/iBhZ9bTB6oKLaGMv8JE9UgjcwfBFg/eHC/VMws+g==" src="https://lib.baomitu.com/socket.io/4.4.1/socket.io.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='vue.js') }}"></script>
+<script  type="text/javascript" src="{{ url_for('static', filename='axios.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+<!-- <script type="text/javascript" src="{{ url_for('static', filename='vconsole.min.js') }}"></script> -->
 
 <div id="app">
-    <div>
-        <span>检查购物车和运力 </span>
-        <button @click="checkCart">[{ buttonStatus.checkCart==='stopped'?'开始':'停止' }]</button>
-    </div>
-    <div>
-        <span>暴力抢菜 </span>
-        <button @click="executeFoods">[{ buttonStatus.executeFoods==='stopped'?'开始':'停止' }]</button>
-    </div>
-    <hr style="margin-top: 2rem;"/>
-    <div style="margin-top: 1rem;overflow: auto;">
-        <div v-for="msg in historyMsg">[{ msg }]</div>
-    </div>
-</div>
+    <div class="shadow-layer" v-if="!socketConnected"></div>
 
+    <div style="padding: 30px 60px;">
+        <div>
+            <span>检查购物车和运力 </span>
+            <button @click="checkCart">[{ buttonStatus.checkCart==='stopped'?'开始':'停止' }]</button>
+            <span>|</span>
+            <span>间隔时间：</span>
+            <input v-model="checkCartDuration" 
+                type="number"
+                style="vertical-align: middle; width: 2rem;height:1rem;font-size:1rem;"/>秒
+    
+        </div>
+        <div>
+            <span>暴力抢菜 </span>
+            <button @click="executeFoods">[{ buttonStatus.executeFoods==='stopped'?'开始':'停止' }]</button>
+        </div>
+        <hr style="margin-top: 2rem;"/>
+        <div style="margin-top: 1rem;overflow: auto;height: calc(100vh - 10rem);">
+            <div v-for="msg in historyMsg">[{ msg }]</div>
+        </div>
+    </div>
+
+</div>
 <script src="{{ url_for('static', filename='index.js') }}"></script>
+
 

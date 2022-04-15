@@ -1,0 +1,1 @@
+1. 手机访问页面，多刷新几次会出现get socket.io.min.js、axios.min.js失败的情况，如果diable cache则正常。

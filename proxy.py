@@ -1,7 +1,3 @@
-import signal
-from socket import timeout
-from tokenize import Funny
-import requests
 import json
 import time
 import sys
@@ -21,26 +17,35 @@ class Proxy():
         self.recycle_times = {
             'check_cart_and_reserve_time_thread': 0
         }
+        self.history_msg = []
         self.thread_map_lock = Lock()
 
     def log_print(self, msg, type='INFO', do_emit=True, channel='common'):
-        formatted_msg = '{} {} {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+        formatted_msg = '{} {} {}'.format(
+            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
             type, 
-            str(msg))
+            str(msg)
+        )
+
         print(formatted_msg)
+
+        if len(self.history_msg) > config.history_msg_length:
+            self.history_msg.pop(0)
+        self.history_msg.append(formatted_msg)
+        
         if do_emit:
             self.socket.emit(channel, {
                 'msg': str(formatted_msg)
             })
 
-    def check_cart_and_reserve_time_thread(self):
+    def check_cart_and_reserve_time_thread(self, duration):
         self.log_print('开始检查购物车和运力...')
         fun_name = sys._getframe().f_code.co_name
         try:
             address_id = self.api.get_address_id()
             while fun_name in self.thread_map:
-                cart_info = self.api.get_cart()
-                # cart_info = None
+                # cart_info = self.api.get_cart()
+                cart_info = None
                 if cart_info:
                     products = cart_info['products']
                     effective_product_names = cart_info['effective_product_names']
@@ -57,20 +62,20 @@ class Proxy():
                     msg = '购物车无有效商品'
                 self.log_print(msg, do_emit=True)
                 self.recycle_times['check_cart_and_reserve_time_thread'] += 1
-                time.sleep(config.duration)
+                time.sleep(duration)
         except Exception as e:
             self.log_print('检查购物车和运力因为错误已停止：' + str(e), type='ERROR')
             if fun_name in self.thread_map:
                 self.thread_map.pop(fun_name)
             
-    def run(self, thread_name):
+    def run(self, thread_name, duration):
         fun = getattr(self, thread_name)
         if not fun:
             self.log_print('{} is not a function'.format(thread_name))
             return False
-
+        duration = int(duration)
         if thread_name not in self.thread_map:
-            thread = threading.Thread(target=fun)
+            thread = threading.Thread(target=fun, args=(duration,))
             thread.start()
             self.thread_map[thread_name] = thread
 
