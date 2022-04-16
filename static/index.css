@@ -1,0 +1,35 @@
+html {
+    font-family: sans-serif; /* 默认字体 */
+    font-size: 100%; /* 调整字体大小 */
+    -ms-text-size-adjust: 100%; /* IE浏览器 */
+   -webkit-text-size-adjust: 100%; /* FireFox浏览器 */
+}
+body {
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+button {
+    font-size: 1rem;
+}
+
+.shadow-layer {
+    position:absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index:999;
+    background: #ccc;
+    opacity: 0.8;
+}
+
+@media screen and (min-width:321px) and (max-width:375px){html{font-size:11px}}
+@media screen and (min-width:376px) and (max-width:414px){html{font-size:12px}}
+@media screen and (min-width:415px) and (max-width:639px){html{font-size:15px}}
+@media screen and (min-width:640px) and (max-width:719px){html{font-size:20px}}
+@media screen and (min-width:720px) and (max-width:749px){html{font-size:22.5px}}
+@media screen and (min-width:750px) and (max-width:799px){html{font-size:23.5px}}
+@media screen and (min-width:800px){html{font-size:25px}}
+
+
+
