@@ -1,4 +1,4 @@
-var baseUrl = 'http://ddmc.remly.xyz:5000/';
+var baseUrl = 'http://ddmc.remly.xyz/';
 // var baseUrl = 'http://192.168.31.98:5000/';
 var $axios = axios.create({
     baseURL: baseUrl
