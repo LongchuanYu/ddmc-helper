@@ -45,9 +45,10 @@ class Proxy():
                     products = cart_info['products']
                     effective_product_names = cart_info['effective_product_names']
                     res = self.api.check_reserve_time(address_id, json.dumps(products))
-                    msg = '购物车有效商品{}件, 运力: {}'.format(
+                    msg = '购物车有效商品{}件, 运力: {}\n{}'.format(
                         len(effective_product_names), 
-                        '有' if res else '无'
+                        '有' if res else '无',
+                        ','.join([e[:2] for e in effective_product_names])
                     )
                     if len(effective_product_names) and self.msg != msg:
                         send_msg_bark(msg)

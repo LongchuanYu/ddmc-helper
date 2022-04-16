@@ -1,5 +1,5 @@
 var $axios = axios.create({
-    baseURL: 'http://192.168.31.98:5000/',
+    baseURL: 'http://ddmc.remly.xyz:5000/',
 })
 var $socket = io();
 $socket.on('connect', function(data) {
