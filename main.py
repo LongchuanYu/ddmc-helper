@@ -56,5 +56,3 @@ def get_history_msg():
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0')
-    #import eventlet.wsgi
-    #eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 5000), app))
