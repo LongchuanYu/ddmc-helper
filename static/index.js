@@ -1,9 +1,9 @@
-var baseUrl = 'http://ddmc.remly.xyz/';
+var baseUrl = 'http://ddmc.remly.xyz:5000/';
 // var baseUrl = 'http://192.168.31.98:5000/';
 var $axios = axios.create({
     baseURL: baseUrl
 })
-var $socket = io();
+var $socket = io({transports: ['websocket']});
 try {
     var $vConsole = new VConsole();
 } catch {}
@@ -94,5 +94,8 @@ var app = new Vue({
         this.getThreadStatus();
         this.listenSocket();
         this.getDurationFromLocalStorage();
+    },
+    destroyed() {
+	$socket.close();
     }
 })
