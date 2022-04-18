@@ -94,8 +94,5 @@ var app = new Vue({
         this.getThreadStatus();
         this.listenSocket();
         this.getDurationFromLocalStorage();
-    },
-    destroyed() {
-	$socket.close();
     }
 })
