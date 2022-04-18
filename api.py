@@ -18,7 +18,7 @@ class Api:
             raise RequestError('请求失败')
         r.encoding = 'utf-8'
         res = r.json()
-        if res.get('code') == -3000 and '拥挤' in res.get('msg'):
+        if res.get('code') == -3000 and '拥挤' in res.get('message'):
             raise CrowdedError(json.dumps(res, ensure_ascii=False))
         if res.get('code') != 0:
             raise RequestError('请求异常: ' + str(res.get('message')))
@@ -59,7 +59,7 @@ class Api:
 
         address_list = res['data']['valid_address']
         for address in address_list:
-            if address['location']['name'] == '长青坊':
+            if config.location_name in address['location']['name']:
                 return address['id']
         return None
 

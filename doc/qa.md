@@ -107,4 +107,8 @@ server {
     ```
 
 
-    
+## 用requests请求的时候报错：RecursionError
+```
+from gevent import monkey  # 放在最开头，否则可能造成无限递归
+monkey.patch_all()  # 放在最开头，否则可能造成无限递归
+```

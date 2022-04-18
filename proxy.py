@@ -42,9 +42,10 @@ class Proxy():
     def check_cart_and_reserve_time_thread(self, duration):
         self.log_print('开始检查购物车和运力...')
         fun_name = sys._getframe().f_code.co_name
-        try:
-            address_id = self.api.get_address_id()
-            while fun_name in self.thread_map:
+        time.sleep(2)
+        while fun_name in self.thread_map:
+            try:
+                address_id = self.api.get_address_id()
                 cart_info = self.api.get_cart()
                 # cart_info = None
                 if cart_info:
@@ -63,13 +64,15 @@ class Proxy():
                     msg = '购物车无有效商品'
                 self.log_print(msg, do_emit=True)
                 self.recycle_times['check_cart_and_reserve_time_thread'] += 1
+            except CrowdedError as e:
+                self.log_print('拥挤： {}'.format(str(e)), type='WARN')
+                continue
+            except Exception as e:
+                self.log_print('检查购物车和运力因为错误已停止：' + str(e), type='ERROR')
+                if fun_name in self.thread_map:
+                    self.thread_map.pop(fun_name)
+            finally:
                 time.sleep(duration)
-        except CrowdedError as e:
-            self.log_print('拥挤： {}'.format(str(e)), type='WARN')
-        except Exception as e:
-            self.log_print('检查购物车和运力因为错误已停止：' + str(e), type='ERROR')
-            if fun_name in self.thread_map:
-                self.thread_map.pop(fun_name)
             
     def run(self, thread_name, duration):
         fun = getattr(self, thread_name)
