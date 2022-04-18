@@ -3,7 +3,7 @@ var baseUrl = 'http://ddmc.remly.xyz/';
 var $axios = axios.create({
     baseURL: baseUrl
 })
-var $socket = io();
+var $socket = io({transports: ['websocket']});
 try {
     var $vConsole = new VConsole();
 } catch {}
@@ -94,5 +94,8 @@ var app = new Vue({
         this.getThreadStatus();
         this.listenSocket();
         this.getDurationFromLocalStorage();
+    },
+    destroyed() {
+	$socket.close();
     }
 })

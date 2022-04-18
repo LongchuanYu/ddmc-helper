@@ -4,13 +4,13 @@ from flask_socketio import SocketIO, emit
 from proxy import Proxy
 from datetime import timedelta
 import config
-import eventlet
+import gevent
+from gevent import monkey
 
-eventlet.monkey_patch()
+monkey.patch_all()
 
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT '] = timedelta(seconds=1)
-socketio = SocketIO(app, cors_allowed_origins='*')
+socketio = SocketIO(app,  cors_allowed_origins='*')
 proxy = Proxy(socketio)
 
 @socketio.on('connect')

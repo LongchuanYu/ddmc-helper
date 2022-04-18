@@ -76,6 +76,7 @@ class Proxy():
         duration = int(duration)
         if thread_name not in self.thread_map:
             thread = threading.Thread(target=fun, args=(duration,))
+            thread.daemon = True
             thread.start()
             self.thread_map[thread_name] = thread
 
