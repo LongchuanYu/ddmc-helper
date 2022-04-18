@@ -3,7 +3,7 @@ import config
 import requests
 import check_stock
 import json
-from error import RequestError
+from error import RequestError, CrowdedError
 
 class Api:
     def __init__(self) -> None:
@@ -18,8 +18,10 @@ class Api:
             raise RequestError('请求失败')
         r.encoding = 'utf-8'
         res = r.json()
-        if res['code'] != 0:
-            raise RequestError('请求异常: ' + str(json.dumps(res, ensure_ascii=False)))
+        if res.get('code') == -3000 and '拥挤' in res.get('msg'):
+            raise CrowdedError(json.dumps(res, ensure_ascii=False))
+        if res.get('code') != 0:
+            raise RequestError('请求异常: ' + str(res.get('message')))
         
         return res
 

@@ -6,6 +6,7 @@ from check_stock import check_stock, send_msg_bark
 from api import Api
 import threading
 from threading import Lock
+from error import CrowdedError, RequestError
 
 
 class Proxy():
@@ -63,6 +64,8 @@ class Proxy():
                 self.log_print(msg, do_emit=True)
                 self.recycle_times['check_cart_and_reserve_time_thread'] += 1
                 time.sleep(duration)
+        except CrowdedError as e:
+            self.log_print('拥挤： {}'.format(str(e)), type='WARN')
         except Exception as e:
             self.log_print('检查购物车和运力因为错误已停止：' + str(e), type='ERROR')
             if fun_name in self.thread_map:

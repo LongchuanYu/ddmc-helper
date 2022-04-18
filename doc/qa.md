@@ -24,7 +24,18 @@ server {
 ```
 2. 启动gunicorn
     ```
-    gunicorn --worker-class eventlet main:app -b 0.0.0.0:5000
+    pip uninstall eventlet
+    pip install gevent gevent-websocket
+    gunicorn --config deploy.conf.py main:app -b 0.0.0.0:5000 &
+    ```
+    deploy.conf.py
+    ```
+    bind = '0.0.0.0:5000'
+    accesslog = '/home/lighthouse/ddmc-helper/log/access.log'
+    errorlog = '/home/lighthouse/ddmc-helper/log/errorlog.log'
+    daemon = False
+    workers = 1
+    worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'
     ```
 
 3. 这样就可以访问了
@@ -69,3 +80,31 @@ server {
 
 
 
+2. gunicorn后台运行后，socketio连不上了，查看gunicorn的errorlog发现：
+    ```
+    self.fire_timers(self.clock())
+    File "/home/lighthouse/.local/lib/python3.8/site-packages/eventlet/hubs/hub.py", line 480, in fire_timers
+        self.squelch_timer_exception(timer, sys.exc_info())
+    File "/home/lighthouse/.local/lib/python3.8/site-packages/eventlet/hubs/hub.py", line 404, in squelch_timer_exception
+        traceback.print_exception(*exc_info)
+    File "/usr/lib/python3.8/traceback.py", line 105, in print_exception
+        print(line, file=file, end="")
+    OSError: [Errno 5] Input/output error
+    ```
+    或者：
+    ```
+    tail = self.send(data, flags)
+    File "/home/lighthouse/.local/lib/python3.8/site-packages/eventlet/greenio/base.py", line 396, in send
+        return self._send_loop(self.fd.send, data, flags)
+    File "/home/lighthouse/.local/lib/python3.8/site-packages/eventlet/greenio/base.py", line 383, in _send_loop
+        return send_method(data, *args)
+    OSError: [Errno 9] Bad file descriptor
+    ```
+
+    解决方案：
+    ```
+    把所有的eventlet换成gevent
+    ```
+
+
+    
