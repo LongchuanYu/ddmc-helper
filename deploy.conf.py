@@ -4,3 +4,4 @@ accesslog = '/home/lighthouse/ddmc-helper/log/access.log'
 errorlog = '/home/lighthouse/ddmc-helper/log/errorlog.log'
 daemon = False
 workers = 1
+worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'

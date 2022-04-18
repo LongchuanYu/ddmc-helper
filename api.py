@@ -19,7 +19,7 @@ class Api:
         r.encoding = 'utf-8'
         res = r.json()
         if res['code'] != 0:
-            raise RequestError('请求异常: ' + str(res.get('message')))
+            raise RequestError('请求异常: ' + str(json.dumps(res)))
         
         return res
 
