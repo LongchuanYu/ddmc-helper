@@ -4,12 +4,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='vue.min.js') }}"></script>
 <script  type="text/javascript" src="{{ url_for('static', filename='axios.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
 <!-- <script type="text/javascript" src="{{ url_for('static', filename='vconsole.min.js') }}"></script> -->
 
 <div id="app">
-    <div class="shadow-layer" v-if="!socketConnected"></div>
-
     <div style="padding: 30px 60px;">
         <div>
             <span>检查购物车和运力 </span>
@@ -26,7 +23,7 @@
             <button @click="executeFoods">[{ buttonStatus.executeFoods==='stopped'?'开始':'停止' }]</button>
         </div>
         <hr style="margin-top: 2rem;"/>
-        <div style="margin-top: 1rem;overflow: auto;height: calc(100vh - 10rem);">
+        <div ref="content" style="margin-top: 1rem;overflow: auto;height: calc(100vh - 10rem);">
             <div v-for="msg in historyMsg">[{ msg }]</div>
         </div>
     </div>

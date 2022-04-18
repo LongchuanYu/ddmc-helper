@@ -10,15 +10,15 @@ from error import CrowdedError, RequestError
 
 
 class Proxy():
-    def __init__(self, socket) -> None:
+    def __init__(self) -> None:
         self.api = Api()
         self.msg = ''
         self.thread_map = {}
-        self.socket = socket
         self.recycle_times = {
             'check_cart_and_reserve_time_thread': 0
         }
         self.history_msg = []
+        self.duration = config.duration
         self.thread_map_lock = Lock()
 
     def log_print(self, msg, type='INFO', do_emit=True, channel='common'):
@@ -33,13 +33,8 @@ class Proxy():
         if len(self.history_msg) > config.history_msg_length:
             self.history_msg.pop(0)
         self.history_msg.append(formatted_msg)
-        
-        if do_emit:
-            self.socket.emit(channel, {
-                'msg': str(formatted_msg)
-            })
 
-    def check_cart_and_reserve_time_thread(self, duration):
+    def check_cart_and_reserve_time_thread(self):
         self.log_print('开始检查购物车和运力...')
         fun_name = sys._getframe().f_code.co_name
         time.sleep(2)
@@ -72,16 +67,17 @@ class Proxy():
                 if fun_name in self.thread_map:
                     self.thread_map.pop(fun_name)
             finally:
-                time.sleep(duration)
+                time.sleep(self.duration)
             
     def run(self, thread_name, duration):
         fun = getattr(self, thread_name)
+        if duration:
+            self.duration = int(duration)
         if not fun:
             self.log_print('{} is not a function'.format(thread_name))
             return False
-        duration = int(duration)
         if thread_name not in self.thread_map:
-            thread = threading.Thread(target=fun, args=(duration,))
+            thread = threading.Thread(target=fun)
             thread.daemon = True
             thread.start()
             self.thread_map[thread_name] = thread

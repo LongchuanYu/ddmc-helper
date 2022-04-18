@@ -1,25 +1,13 @@
 from gevent import monkey  # 放在最开头，否则可能造成无限递归
 monkey.patch_all()  # 放在最开头，否则可能造成无限递归
 
-from concurrent.futures import thread
 from flask import Flask, request, render_template, jsonify
-from flask_socketio import SocketIO, emit
 from proxy import Proxy
-from datetime import timedelta
 import config
 
 
 app = Flask(__name__)
-socketio = SocketIO(app,  cors_allowed_origins='*')
-proxy = Proxy(socketio)
-
-@socketio.on('connect')
-def socket_connect():
-    print('socket connected')
-
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected')
+proxy = Proxy()
 
 @app.route('/')
 def index():
@@ -28,7 +16,7 @@ def index():
 @app.route('/check_cart_and_reserve_time', methods=['POST'])
 def check_cart_and_reserve_time():
     data = request.get_json()
-    proxy.run(data['thread_name'], duration=data.get('duration', config.duration))
+    proxy.run(data['thread_name'], duration=data.get('duration'))
     return 'ok'
 
 @app.route('/stop_thread', methods=['POST'])
@@ -43,16 +31,16 @@ def stop_all():
     proxy.stop_all()
     return 'ok'
 
-@app.route('/get_started_thread')
-def get_started_thread():
-    thread_map = proxy.thread_map
-    thread_name_list = list(thread_map.keys())
+@app.route('/get_proxy_params')
+def get_proxy_params():
+    data = {
+        'thread_name_list': list(proxy.thread_map.keys()),
+        'history_msg': proxy.history_msg,
+        'duration': proxy.duration
+    }
 
-    return jsonify(thread_name_list)
+    return jsonify(data)
 
-@app.route('/get_history_msg')
-def get_history_msg():
-    return jsonify(proxy.history_msg)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

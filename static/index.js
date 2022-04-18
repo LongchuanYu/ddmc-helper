@@ -3,7 +3,6 @@ var baseUrl = 'http://192.168.31.98:5000/';
 var $axios = axios.create({
     baseURL: baseUrl
 })
-var $socket = io({transports: ['websocket']});
 try {
     var $vConsole = new VConsole();
 } catch {}
@@ -19,7 +18,6 @@ var app = new Vue({
         checkCartDuration: '',
         isQuering: false,
         historyMsg: [],
-        socketConnected: false,
     },
     methods: {
         checkCart: function() {
@@ -42,57 +40,42 @@ var app = new Vue({
                     this.buttonStatus.checkCart = 'stopped';
                 })
             }
-
-            this.setDurationToLocalStorage();
         },
         executeFoods: function() {
         },
-        listenSocket: function() {
-            $socket.on('common', (data) => {
-                if (data.msg) {
-                    this.historyMsg.push(data.msg);
+        getProxyParams: function(categories=['history_msg', 'thread_name_list', 'duration']) {
+            $axios.get('get_proxy_params').then(res => {
+                if (categories.includes('history_msg')) {
+                    this.historyMsg = res.data.history_msg;
+                    this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+                }
+                if (categories.includes('thread_name_list')) {
+                    let threadNameMap = {
+                        check_cart_and_reserve_time_thread: 'checkCart'
+                    }
+                    threadNameList = res.data.thread_name_list;
+                    threadNameList.forEach(threadName => {
+                        if (threadName in threadNameMap) {
+                            buttonStatusName = threadNameMap[threadName];
+                            this.buttonStatus[buttonStatusName] = 'started';
+                        }
+                    });
+                }
+                if (categories.includes('duration')) {
+                    this.checkCartDuration = res.data.duration;
                 }
             })
         },
-        getThreadStatus: function() {
-            let threadNameMap = {
-                check_cart_and_reserve_time_thread: 'checkCart'
-            }
-            $axios.get('get_started_thread').then(res => {
-                res.data.forEach(threadName => {
-                    if (threadName in threadNameMap) {
-                        buttonStatusName = threadNameMap[threadName];
-                        this.buttonStatus[buttonStatusName] = 'started';
-                    }
-                });
-            })
-        },
-        setDurationToLocalStorage: function() {
-            window.localStorage.setItem('duration', this.checkCartDuration);
-        },
-        getDurationFromLocalStorage: function() {
-            let duration = window.localStorage.getItem('duration');
-            if (duration) {
-                this.checkCartDuration = duration;
-            }
-        },
-        getHistoryMsg: function() {
-            $axios.get('get_history_msg').then(res => {
-                this.historyMsg = res.data;
-            })
+        getHistoryMsgHeartBeats: function () {
+            setInterval(() => {
+                this.getProxyParams(['history_msg']);
+            }, 3000);
         },
     },
     created: function() {
-        $socket.on('connect', (data) => {
-            console.log('socket connected!')
-            this.socketConnected = true;
-        });
-
     },
     mounted: function() {
-        this.getHistoryMsg();
-        this.getThreadStatus();
-        this.listenSocket();
-        this.getDurationFromLocalStorage();
+        this.getProxyParams();
+        this.getHistoryMsgHeartBeats();
     }
 })
