@@ -1,5 +1,6 @@
 from tabnanny import check
-import config
+import utils
+from utils import config
 import requests
 import check_stock
 import json
@@ -22,7 +23,7 @@ class Api:
         if res.get('code') == -3000 and '拥挤' in res.get('msg', ''):
             raise CrowdedError(json.dumps(res, ensure_ascii=False))
         if res.get('code') != 0:
-            raise RequestError('请求异常: ' + str(res.get('msg')))
+            raise RequestError('请求异常: ' + str(res.get('message')))
         
         return res
 
@@ -30,7 +31,7 @@ class Api:
         """ 发送消息
 
         """
-        bark_msg_url = 'https://api.day.app/' + config.bark_id + '/'
+        bark_msg_url = 'https://api.day.app/' + config['bark_id'] + '/'
         params = {
             'group': '叮咚买菜',
             'sound': 'minuet'
@@ -42,14 +43,14 @@ class Api:
         
         """
         headers = {
-            'User-Agent': config.ua,
+            'User-Agent': config['ua'],
             'Connection': 'keep-alive',
             'content-type': 'application/x-www-form-urlencoded',
-            'Cookie': config.cookie,
+            'Cookie': config['cookie'],
             'Accept-Encoding': 'gzip, deflate, br',
             'Referer': 'https://servicewechat.com/wx1e113254eda17715/422/page-frame.html'
         }
-        param = config.get_body()
+        param = utils.get_body()
         url = 'https://sunquan.api.ddxq.mobi/api/v1/user/address/'
         try:
             r = requests.get(url, headers=headers, params=param)
@@ -60,7 +61,7 @@ class Api:
 
         address_list = res['data']['valid_address']
         for address in address_list:
-            if config.location_name in address['location']['name']:
+            if config['location_name'] in address['location']['name']:
                 return address['id']
         return None
 
@@ -70,10 +71,10 @@ class Api:
 
         @return: {} or {'products': [], 'total_money': '', ...}
         """
-        headers = config.get_headers()
+        headers = utils.get_headers()
         headers.pop('Content-Length')
         url = 'https://maicai.api.ddxq.mobi/cart/index'
-        params = config.get_body()
+        params = utils.get_body()
         params['is_load'] = '1'
         try:
             r = requests.get(url, headers=headers, params=params)
@@ -97,11 +98,14 @@ class Api:
     def check_reserve_time(self, address_id, products_raw):
         """ 检查是否有运力 需要cookie
 
+        @param: address_id: number 默认收获地址id,可通过get_address_id()获取
+        @param: products_raw: string 商品信息,可通过get_cart()获取,转为字符串
+
         @return: {} or {'start_timestamp': '', 'end_timestamp': ''}
         """
         url = 'https://maicai.api.ddxq.mobi/order/getMultiReserveTime'
-        headers = config.get_headers()
-        payload = config.get_body()
+        headers = utils.get_headers()
+        payload = utils.get_body()
         payload['address_id'] = address_id
         payload['products'] = '[' + products_raw + ']'
         payload['group_config_id'] = ''
@@ -124,5 +128,18 @@ class Api:
 
 if __name__ == '__main__':
     api = Api()
-    ret = api.get_cart()
-    print(ret)
+    address_id = api.get_address_id()
+    cart_info = api.get_cart()
+    # cart_info = None
+    if cart_info:
+        products = cart_info['products']
+        effective_product_names = cart_info['effective_product_names']
+        res = api.check_reserve_time(address_id, json.dumps(products))
+        msg = '购物车有效商品{}件, 运力: {}\n{}'.format(
+            len(effective_product_names), 
+            '有' if res else '无',
+            ','.join([el[:2] for el in effective_product_names])
+        )
+    else:
+        msg = '购物车无有效商品'
+    print(msg)

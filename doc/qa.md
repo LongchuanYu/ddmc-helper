@@ -11,14 +11,14 @@ server {
     listen      80;
     server_name ddmc.remly.xyz;
     location / {
-        proxy_pass  http://10.0.16.12:5000;
+        proxy_pass  http://0.0.0.0:5000;
     }
     location /socket.io {
         proxy_http_version 1.1;
         proxy_buffering off;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        proxy_pass http://10.0.16.12:5000/socket.io;
+        proxy_pass http://0.0.0.0:5000/socket.io;
     }
 }
 ```

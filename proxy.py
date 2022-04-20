@@ -3,7 +3,7 @@ import json
 import time
 import sys
 import traceback
-import config
+from utils import config
 from check_stock import check_stock, send_msg_bark
 from api import Api
 import threading
@@ -20,7 +20,7 @@ class Proxy():
             'check_cart_and_reserve_time_thread': 0
         }
         self.history_msg = []
-        self.duration = config.duration
+        self.duration = config['duration']
         self.thread_map_lock = Lock()
 
     def log_print(self, msg, type='INFO'):
@@ -32,7 +32,7 @@ class Proxy():
 
         print(formatted_msg)
 
-        if len(self.history_msg) > config.history_msg_length:
+        if len(self.history_msg) > config['history_msg_length']:
             self.history_msg.pop(0)
         self.history_msg.append(formatted_msg)
 
@@ -52,7 +52,7 @@ class Proxy():
                     msg = '购物车有效商品{}件, 运力: {}\n{}'.format(
                         len(effective_product_names), 
                         '有' if res else '无',
-                        ','.join([e[:2] for e in effective_product_names])
+                        ','.join([el[:2] for el in effective_product_names])
                     )
                     if len(effective_product_names) and self.msg != msg:
                         send_msg_bark(msg)

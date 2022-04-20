@@ -4,11 +4,11 @@ import os
 import time
 
 import requests
-import config
+from utils import config
 
 
 def send_msg_bark(msg):
-    bark_msg_url = 'https://api.day.app/' + config.bark_id + '/'
+    bark_msg_url = 'https://api.day.app/' + config['bark_id'] + '/'
     params = {
         'group': '叮咚买菜',
         'sound': 'minuet'
@@ -19,10 +19,10 @@ def send_msg_bark(msg):
 # 通过 station_id 获取所有分类 id
 def get_categories():
     cate_url = "https://maicai.api.ddxq.mobi/homeApi/newCategories"
-    headers = {'User-Agent': config.ua,
+    headers = {'User-Agent': config['ua'],
                }
     payload = {'api_version': '9.49.1',
-               'station_id': config.station_id,
+               'station_id': config['station_id'],
                }
     r = requests.get(cate_url, params=payload, headers=headers)
     if r.status_code == 200:
@@ -63,7 +63,7 @@ def extract_categories():
 def get_station_name(longitude, latitude):
     url = "https://sunquan.api.ddxq.mobi/api/v2/user/location/refresh/"
     headers = {
-        'User-Agent': config.ua,
+        'User-Agent': config['ua'],
     }
     payload = {
         "longitude": longitude,
@@ -79,11 +79,11 @@ def get_station_name(longitude, latitude):
 def get_menu_with_category_id(category_id):
     cate_detail_url = "https://maicai.api.ddxq.mobi/homeApi/categoriesNewDetail/"
     headers = {
-        'User-Agent': config.ua,
+        'User-Agent': config['ua'],
     }
     payload = {
-        'city-number': config.city_number,
-        'station-id': config.station_id,
+        'city-number': config['city_number'],
+        'station-id': config['station_id'],
         "category_id": category_id,
         "version_control": "new"
     }
@@ -115,7 +115,7 @@ def check_stock():
 
         for top_category in all_categories["top_categories"]:
             all_submenu = []
-            if top_category['name'] in config.name_of_categories_i_care:
+            if top_category['name'] in config['name_of_categories_i_care']:
                 for sub_category in top_category["sub_categories"]:
                     menu = get_menu_with_category_id(sub_category['sub_category_id'])
                     if len(menu['products']) > 0:
@@ -125,7 +125,7 @@ def check_stock():
                     count += len(menu['products'])
                 if count > 0:
                     flag = True
-                    print("|------" + get_station_name(config.longitude, config.latitude))
+                    print("|------" + get_station_name(config['longitude'], config['latitude']))
                     print("|-" + top_category['name'])
                     msg += top_category['name'] + ", "
                     print("| |")
@@ -141,7 +141,7 @@ def check_stock():
     else:
         print(
             "|------"
-            + get_station_name(config.longitude, config.latitude) + " "
+            + get_station_name(config['longitude'], config['latitude']) + " "
             + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             + "---没有菜哦！"
         )

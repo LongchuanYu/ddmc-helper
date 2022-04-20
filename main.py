@@ -1,9 +1,9 @@
+from operator import imod
 from gevent import monkey  # 放在最开头，否则可能造成无限递归
 monkey.patch_all()  # 放在最开头，否则可能造成无限递归
 
 from flask import Flask, request, render_template, jsonify
 from proxy import Proxy
-import config
 
 
 app = Flask(__name__)
