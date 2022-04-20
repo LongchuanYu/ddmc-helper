@@ -1,6 +1,8 @@
+from distutils.log import error
 import json
 import time
 import sys
+import traceback
 import config
 from check_stock import check_stock, send_msg_bark
 from api import Api
@@ -21,7 +23,7 @@ class Proxy():
         self.duration = config.duration
         self.thread_map_lock = Lock()
 
-    def log_print(self, msg, type='INFO', do_emit=True, channel='common'):
+    def log_print(self, msg, type='INFO'):
         formatted_msg = '{} {} {}'.format(
             time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
             type, 
@@ -57,16 +59,23 @@ class Proxy():
                         self.msg = msg
                 else:
                     msg = '购物车无有效商品'
-                self.log_print(msg, do_emit=True)
-                self.recycle_times['check_cart_and_reserve_time_thread'] += 1
+                self.log_print(msg)
             except CrowdedError as e:
                 self.log_print('拥挤： {}'.format(str(e)), type='WARN')
                 continue
-            except Exception as e:
-                self.log_print('检查购物车和运力因为错误已停止：' + str(e), type='ERROR')
+            except RequestError as e:
+                self.log_print('请求失败，已停止：' + str(e), type='ERROR')
                 if fun_name in self.thread_map:
                     self.thread_map.pop(fun_name)
+                return
+            except Exception as e:
+                error_msg = str(traceback.format_exc())
+                self.log_print(msg='未知错误，已停止：{}'.format(error_msg), type='ERROR')
+                if fun_name in self.thread_map:
+                    self.thread_map.pop(fun_name)
+                return
             finally:
+                self.recycle_times['check_cart_and_reserve_time_thread'] += 1
                 time.sleep(self.duration)
             
     def run(self, thread_name, duration):

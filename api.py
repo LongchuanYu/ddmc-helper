@@ -18,10 +18,11 @@ class Api:
             raise RequestError('请求失败')
         r.encoding = 'utf-8'
         res = r.json()
-        if res.get('code') == -3000 and '拥挤' in res.get('message'):
+        
+        if res.get('code') == -3000 and '拥挤' in res.get('msg', ''):
             raise CrowdedError(json.dumps(res, ensure_ascii=False))
         if res.get('code') != 0:
-            raise RequestError('请求异常: ' + str(res.get('message')))
+            raise RequestError('请求异常: ' + str(res.get('msg')))
         
         return res
 
